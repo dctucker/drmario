@@ -71,17 +71,17 @@ class Cell:
 class View:
 	def ansi_color(cell):
 		return {
-			Cell.RED: "\033[37;1;41m",
-			Cell.YELLOW: "\033[0;30;43m",
-			Cell.BLUE: "\033[0;30;46m",
+			Cell.RED: "\033[0;30;41;4m",
+			Cell.YELLOW: "\033[0;30;43;4m",
+			Cell.BLUE: "\033[0;30;46;4m",
 			Cell.EMPTY: "\033[0;34;40m",
 		}[cell.color()]
 
 	def color_str(cell):
 		return {
-			Cell.RED: ">Ѧ<",
-			Cell.YELLOW: "]Ѡ[",
-			Cell.BLUE: "}Ж{",
+			Cell.RED: "▌Ѧ▐",
+			Cell.YELLOW: "▌Ѡ▐",
+			Cell.BLUE: "▌Ж▐",
 			Cell.EMPTY: " - ",
 		}[cell.color()]
 
@@ -89,14 +89,14 @@ class View:
 		a = View.ansi_color(cell) 
 		c = View.color_str(cell)
 		if cell.is_zapped():
-			c = " ☼ "
+			c = "\033[24;7m>@<\033[27m"
 		elif cell.is_pill():
 			c = " "
 			if cell.is_bound_left():
-				c = "|%s)" % c
+				c = "│%s▐" % c
 			elif cell.is_bound_right():
-				c = "(%s|" % c
+				c = "▌%s│" % c
 			else:
-				c = "(%s)" % c
+				c = "▌%s▐" % c
 		return "%s%s" % (a, c)
 
