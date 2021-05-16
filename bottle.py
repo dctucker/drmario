@@ -111,41 +111,28 @@ class Bottle:
 		for y,row in enumerate(self.cells):
 			for x,cell in enumerate(row):
 				if cell.is_virus() or cell.is_pill():
-					aligned = True
 					color = cell.color()
-					cell1 = self.cell_at(x, y+1)
-					cell2 = self.cell_at(x, y+2)
-					cell3 = self.cell_at(x, y+3)
-					aligned = aligned and cell1 and cell1.color() == color
-					aligned = aligned and cell2 and cell2.color() == color
-					aligned = aligned and cell3 and cell3.color() == color
+
+					# vertical
+					aligned = True
+					for dy in range(1, 4):
+						c = self.cell_at(x, y+dy)
+						aligned = aligned and c and c.color() == color
 					if aligned:
-						cell.zap()
-						cell1.zap()
-						cell2.zap()
-						cell3.zap()
-						self.zap_bound(x, y)
-						self.zap_bound(x, y+1)
-						self.zap_bound(x, y+2)
-						self.zap_bound(x, y+3)
+						for dy in range(0, 4):
+							self.cell_at(x, y+dy).zap()
+							self.zap_bound(x, y+dy)
 						zap = True
 
+					# horizontal
 					aligned = True
-					cell1 = self.cell_at(x+1, y)
-					cell2 = self.cell_at(x+2, y)
-					cell3 = self.cell_at(x+3, y)
-					aligned = aligned and cell1 and cell1.color() == color
-					aligned = aligned and cell2 and cell2.color() == color
-					aligned = aligned and cell3 and cell3.color() == color
+					for dx in range(1, 4):
+						c = self.cell_at(x+dx, y)
+						aligned = aligned and c and c.color() == color
 					if aligned:
-						cell.zap()
-						cell1.zap()
-						cell2.zap()
-						cell3.zap()
-						self.zap_bound(x, y)
-						self.zap_bound(x+1, y)
-						self.zap_bound(x+2, y)
-						self.zap_bound(x+3, y)
+						for dx in range(0, 4):
+							self.cell_at(x+dx, y).zap()
+							self.zap_bound(x+dx, y)
 						zap = True
 		return zap
 
