@@ -15,13 +15,19 @@ class Bottle:
 	def __str__(self):
 		return View.render(self)
 
+	def lines(self):
+		return View.lines(self)
+
 	def empty(self):
 		self.cells = [[Cell() for row in range(0,self.width)] for col in range(0,self.height)]
 	
 	def infect(self, count):
+		sh4 = (self.height - 4)
+		full = count / (sh4 * self.width)
+		cap = max(4, self.height - max(self.height/2, full * self.height) )
 		while self.virus_count() < count:
 			x = random.randint(0, self.width-1)
-			y = random.randint(4, self.height-1)
+			y = random.randint(int(cap), self.height-1)
 			cell = self.cell_at(x, y)
 			cell.infect()
 	
@@ -89,12 +95,30 @@ class Bottle:
 			for x,cell in enumerate(self.cells[y]):
 				if not cell.is_pill(): continue
 				if cell.is_zapped(): continue
-				if not cell.is_bound():
+				if cell.is_bound():
+					if cell.is_bound_left():
+						bound  = self.cell_at(x-1, y)
+						below1 = self.cell_at(x   ,y+1)
+						below2 = self.cell_at(x-1 ,y+1)
+					elif cell.is_bound_right():
+						bound  = self.cell_at(x+1, y )
+						below1 = self.cell_at(x  ,y+1)
+						below2 = self.cell_at(x+1,y+1)
+					if below1 is None or below2 is None:
+						continue
+
+					if below1.is_empty() and below2.is_empty():
+						below1.value = cell.value
+						below2.value = bound.value
+						cell.empty()
+						bound.empty()
+						applied += 2
+				else:
 					below = self.cell_at(x,y+1)
 					if below is None:
 						continue
 					if below.is_empty():
-						self.cell_at(x, y+1).value = cell.value
+						below.value = cell.value
 						cell.empty()
 						applied += 1
 		return applied
@@ -148,19 +172,19 @@ class Bottle:
 
 class View:
 	def bottle_top(bottle):
-		ret = ""
-		ret += " " + " " * bottle.width + "╥      ╥\n"
-		top = ('═' * bottle.width * 1)
-		ret += "╔%s╝      ╚%s╗" % (top,top)
-		ret += "\n"
-		return ret
+		spaces = " " * bottle.width
+		top = '═' * bottle.width * 1
+		return [
+			" %s╥      ╥%s " % (spaces, spaces),
+			"╔%s╝      ╚%s╗" % (top,top),
+		]
+
+	def lines(bottle):
+		rows = ["".join(str(c) for c in row) for row in bottle.cells]
+		cells = [("║%s\033[0m║" % row) for row in rows]
+		return [] + View.bottle_top(bottle) + cells + [
+			"╚" + "═" * bottle.width * 3 + "╝",
+		]
 
 	def render(bottle):
-		ret = ""
-		ret += View.bottle_top(bottle)
-		rows = ["".join(str(c) for c in row) for row in bottle.cells]
-		ret += "\n".join(("║%s\033[0m║" % row) for row in rows)
-		ret += "\n"
-		ret += "╚" + "═" * bottle.width * 3 + "╝"
-		ret += "\n"
-		return ret
+		return "\n".join(View.lines(bottle)) + "\n"

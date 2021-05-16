@@ -7,7 +7,7 @@ KEY_RIGHT = '\033[C'
 KEY_DOWN = '\033[B'
 
 term = Term()
-game = Game(1)
+game = Game(10, 0)
 game.begin()
 game.toss_pill()
 

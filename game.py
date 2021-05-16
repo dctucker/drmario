@@ -14,11 +14,12 @@ class State:
 	LOSE = 5
 
 class Game:
-	def __init__(self, level = 10):
+	def __init__(self, level = 1, speed = 1):
 		self.bottle = Bottle()
 		self.level = level
-		self.delay = 1
-		self.speed = 1
+		self.speed = speed
+
+		self.reset_delay()
 		self.ticked = 0
 		self.zapped = False
 		self.gravity_done = False
@@ -26,13 +27,7 @@ class Game:
 		self.next_pill = Pill()
 
 	def __str__(self):
-		next_pill = " " * self.bottle.width * 2 + "   " + str(self.next_pill)
-		bottle = str(self.bottle)
-		stats = ""
-		stats += "PILL " if self.pill is not None else "     "
-		stats += "STATE: %d " % self.state
-		stats += "VIRUS: %d " % self.bottle.virus_count()
-		return "%s\n%s\n%s" % (next_pill, bottle, stats)
+		return View.render(self)
 
 	def begin(self):
 		self.bottle.empty()
@@ -80,7 +75,8 @@ class Game:
 			self.pill = None
 
 	def reset_delay(self):
-		self.delay = 1.0 / self.speed
+		bpms = [ 85.5, 185.3, 235 ]
+		self.delay = 60.0 / bpms[self.speed]
 	
 	def tick(self):
 		now = time.time()
@@ -127,4 +123,11 @@ class Game:
 
 class View:
 	def render(game):
-		print(str(game))
+		next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
+		bottle = "\n     ".join( game.bottle.lines() )
+		stats = ""
+		stats += "PILL " if game.pill is not None else "     "
+		stats += "STATE: %d " % game.state
+		stats += "VIRUS: %d " % game.bottle.virus_count()
+		return "     %s\n     %s\n%s" % (next_pill, bottle, stats)
+
