@@ -73,8 +73,8 @@ class View:
 		return {
 			Cell.RED: "\033[37;1;41m",
 			Cell.YELLOW: "\033[0;30;43m",
-			Cell.BLUE: "\033[33;1;44m",
-			Cell.EMPTY: "\033[30;1;40m",
+			Cell.BLUE: "\033[0;30;46m",
+			Cell.EMPTY: "\033[0;34;40m",
 		}[cell.color()]
 
 	def color_str(cell):

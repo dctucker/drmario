@@ -7,13 +7,13 @@ KEY_RIGHT = '\033[C'
 KEY_DOWN = '\033[B'
 
 term = Term()
-game = Game()
+game = Game(1)
 game.begin()
 game.toss_pill()
 
 def display():
 	term.clear()
-	print(game.display())
+	print(str(game))
 
 while True:
 	key = term.getch()
@@ -36,4 +36,11 @@ while True:
 	
 	if game.tick():
 		display()
+
+	if game.win():
+		print("YOU WIN!")
+		break
+	if game.lose():
+		print("YOU LOSE")
+		break
 

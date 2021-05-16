@@ -18,16 +18,24 @@ class Bottle:
 	def empty(self):
 		self.cells = [[Cell() for row in range(0,self.width)] for col in range(0,self.height)]
 	
-	def infect(self, level):
-		for row in self.cells[5:]:
-			for cell in row:
-				if random.random() < level / 64.0:
-					cell.infect()
+	def infect(self, count):
+		while self.virus_count() < count:
+			x = random.randint(0, self.width-1)
+			y = random.randint(4, self.height-1)
+			cell = self.cell_at(x, y)
+			cell.infect()
 	
 	def drop_pill(self, pill):
 		pill.x = int(self.width / 2) - 1
 		pill.y = 1
-		self.format_pill(pill)
+		x1,y1,x2,y2 = pill.coords()
+		cell1 = self.cell_at(x1, y1)
+		cell2 = self.cell_at(x2, y2)
+		if cell1.is_empty() and cell2.is_empty():
+			self.format_pill(pill)
+			return True
+		else:
+			return False
 	
 	def format_pill(self, pill):
 		x1,y1,x2,y2 = pill.coords()
@@ -55,6 +63,15 @@ class Bottle:
 		if col < 0 or col >= self.width:
 			return None
 		return self.cells[row][col]
+	
+	def virus_count(self):
+		count = 0
+		for i,row in enumerate(self.cells):
+			for j,cell in enumerate(row):
+				if cell.is_virus() and not cell.is_zapped():
+					count += 1
+		return count
+
 	
 	def can_move_pill(self, pill, dx, dy, rotation=None):
 		copy = Pill(pill)

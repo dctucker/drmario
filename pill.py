@@ -64,3 +64,11 @@ class Pill:
 			return self.x, self.y
 		elif self.rotation == self.UD:
 			return self.x, self.y
+
+	def __str__(self):
+		return View.render(self)
+
+class View:
+	def render(pill):
+		return str(pill.cell1) + str(pill.cell2) + "\033[0m"
+

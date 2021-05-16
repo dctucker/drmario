@@ -6,10 +6,12 @@ from bottle import Bottle
 from pill import Pill
 
 class State:
-	DROPPED = 0
-	FALLING = 1
-	NEW_PILL = 2
-	
+	MOVING = 0
+	DROPPED = 1
+	FALLING = 2
+	NEW_PILL = 3
+	WIN = 4
+	LOSE = 5
 
 class Game:
 	def __init__(self, level = 10):
@@ -20,25 +22,27 @@ class Game:
 		self.ticked = 0
 		self.zapped = False
 		self.gravity_done = False
-		self.state = State.DROPPED
+		self.state = State.MOVING
 		self.next_pill = Pill()
-	
-	def display(self):
-		next_pill = str(self.next_pill)
+
+	def __str__(self):
+		next_pill = " " * self.bottle.width * 2 + "   " + str(self.next_pill)
 		bottle = str(self.bottle)
 		stats = ""
 		stats += "PILL " if self.pill is not None else "     "
-		stats += "STATE: %d" % self.state
+		stats += "STATE: %d " % self.state
+		stats += "VIRUS: %d " % self.bottle.virus_count()
 		return "%s\n%s\n%s" % (next_pill, bottle, stats)
 
 	def begin(self):
 		self.bottle.empty()
-		self.bottle.infect(self.level)
+		self.bottle.infect(self.level * 4)
 
 	def toss_pill(self):
 		self.pill = self.next_pill
-		self.bottle.drop_pill(self.pill)
+		drop = self.bottle.drop_pill(self.pill)
 		self.next_pill = Pill()
+		return drop
 
 	def rotate_pill(self, back = False):
 		if self.pill is None: return
@@ -84,26 +88,43 @@ class Game:
 			return False
 		self.ticked = now
 
-		if self.pill is not None:
-			self.move_down()
-		else:
-			self.delay = 0.25
-			if self.state == State.DROPPED:
-				zapped = self.check_aligned()
-				if zapped:
-					self.state = State.FALLING
-				else:
-					self.state = State.NEW_PILL
-			elif self.state == State.FALLING:
-				self.bottle.clear_zapped()
-				if self.bottle.apply_gravity() == 0:
-					self.state = State.DROPPED
-			elif self.state == State.NEW_PILL:
-				self.toss_pill()
-				self.reset_delay()
+		if self.state == State.MOVING:
+			if self.pill is not None:
+				self.move_down()
+			if self.pill is None:
+				self.delay = 0.25
 				self.state = State.DROPPED
+		if self.state == State.DROPPED:
+			zapped = self.check_aligned()
+			if zapped:
+				if self.bottle.virus_count() == 0:
+					self.state = State.WIN
+					return True
+				self.state = State.FALLING
+			else:
+				self.state = State.NEW_PILL
+		elif self.state == State.FALLING:
+			self.bottle.clear_zapped()
+			if self.bottle.apply_gravity() == 0:
+				self.state = State.DROPPED
+		elif self.state == State.NEW_PILL:
+			if self.toss_pill():
+				self.reset_delay()
+				self.state = State.MOVING
+			else:
+				self.state = State.LOSE
+				return False
 		return True
 
 	def check_aligned(self):
 		return self.bottle.zap_aligned()
 
+	def win(self):
+		return self.state == State.WIN
+
+	def lose(self):
+		return self.state == State.LOSE
+
+class View:
+	def render(game):
+		print(str(game))
