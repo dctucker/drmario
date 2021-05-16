@@ -24,6 +24,7 @@ class Term:
 			self.init_posix()
 
 	def init_posix(self):
+		os.system('clear')
 		self.fd = sys.stdin.fileno()
 
 		self.oldterm = termios.tcgetattr(self.fd)
@@ -41,6 +42,7 @@ class Term:
 		fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags)
 
 	def init_nt(self):
+		os.system('cls')
 		# msvcrt
 		pass
 	

@@ -22,15 +22,17 @@ class View:
 	def render(cell):
 		a = View.ansi_color(cell) 
 		c = View.color_str(cell)
-		if cell.is_virus():
+		if cell.is_zapped():
+			c = " X "
+		elif cell.is_virus():
 			c = c.lower()
 			c = " %s " % c
 		elif cell.is_pill():
 			c = c.upper()
 			if cell.is_bound_left():
-				c = " %s)" % c
+				c = "|%s)" % c
 			elif cell.is_bound_right():
-				c = "(%s " % c
+				c = "(%s|" % c
 			else:
 				c = "(%s)" % c
 		else:
@@ -41,6 +43,7 @@ class Cell:
 	EMPTY = 0
 	PILL = 1
 	VIRUS = 2
+	ZAP = 3
 	RED = 4
 	YELLOW = 8
 	BLUE = 12
@@ -70,6 +73,10 @@ class Cell:
 		assert color in (self.RED, self.YELLOW, self.BLUE)
 		self.value = self.PILL | color | bound
 
+	def zap(self):
+		self.value |= Cell.ZAP
+	def unbind(self):
+		self.value &= ~ (Cell.BIND_LEFT | Cell.BIND_RIGHT)
 	def empty(self):
 		self.value = Cell.EMPTY
 
@@ -77,10 +84,12 @@ class Cell:
 		return self.value == self.EMPTY
 	def color(self):
 		return self.value & (self.RED | self.YELLOW & self.BLUE)
-	def is_virus(self):
-		return self.value & self.VIRUS
 	def is_pill(self):
 		return self.value & self.PILL
+	def is_virus(self):
+		return self.value & self.VIRUS
+	def is_zapped(self):
+		return self.value & self.ZAP == self.ZAP
 	def is_bound(self):
 		return self.value & (self.BIND_LEFT | self.BIND_RIGHT)
 	def is_bound_left(self):
@@ -104,7 +113,7 @@ class Bottle:
 		self.cells = [[Cell() for row in range(0,self.width)] for col in range(0,self.height)]
 	
 	def infect(self, level):
-		for row in self.cells[3:]:
+		for row in self.cells[5:]:
 			for cell in row:
 				if random.random() < level / 64.0:
 					cell.infect()
@@ -153,17 +162,80 @@ class Bottle:
 		return cell1 and cell2 and cell1.is_empty() and cell2.is_empty()
 
 	def apply_gravity(self):
+		applied = 0
 		for y in range(self.height-1, 0, -1):
 			for x,cell in enumerate(self.cells[y]):
-				if not cell.is_pill():
-					continue
-				#if not cell.is_bound():
-				#	below = self.cell_at(x,y+1)
-				#	if below is None:
-				#		continue
-				#	if below.is_empty():
-				#		self.cell_at(x, y+1).value = cell.value
-				#		cell.empty()
+				if not cell.is_pill(): continue
+				if cell.is_zapped(): continue
+				if not cell.is_bound():
+					below = self.cell_at(x,y+1)
+					if below is None:
+						continue
+					if below.is_empty():
+						self.cell_at(x, y+1).value = cell.value
+						cell.empty()
+						applied += 1
+		return applied
+
+	def zap_bound(self, x, y):
+		cell = self.cell_at(x,y)
+		if cell.is_bound_left():
+			self.cell_at(x-1, y).unbind()
+		if cell.is_bound_right():
+			self.cell_at(x+1, y).unbind()
+	
+	def zap_aligned(self):
+		zap = False
+		for y,row in enumerate(self.cells):
+			for x,cell in enumerate(row):
+				if cell.is_virus() or cell.is_pill():
+					aligned = True
+					color = cell.color()
+					cell1 = self.cell_at(x, y+1)
+					cell2 = self.cell_at(x, y+2)
+					cell3 = self.cell_at(x, y+3)
+					aligned = aligned and cell1 and cell1.color() == color
+					aligned = aligned and cell2 and cell2.color() == color
+					aligned = aligned and cell3 and cell3.color() == color
+					if aligned:
+						cell.zap()
+						cell1.zap()
+						cell2.zap()
+						cell3.zap()
+						self.zap_bound(x, y)
+						self.zap_bound(x, y+1)
+						self.zap_bound(x, y+2)
+						self.zap_bound(x, y+3)
+						zap = True
+
+					aligned = True
+					cell1 = self.cell_at(x+1, y)
+					cell2 = self.cell_at(x+2, y)
+					cell3 = self.cell_at(x+3, y)
+					aligned = aligned and cell1 and cell1.color() == color
+					aligned = aligned and cell2 and cell2.color() == color
+					aligned = aligned and cell3 and cell3.color() == color
+					if aligned:
+						cell.zap()
+						cell1.zap()
+						cell2.zap()
+						cell3.zap()
+						self.zap_bound(x, y)
+						self.zap_bound(x+1, y)
+						self.zap_bound(x+2, y)
+						self.zap_bound(x+3, y)
+						zap = True
+		return zap
+
+	def clear_zapped(self):
+		for y,row in enumerate(self.cells):
+			for x,cell in enumerate(row):
+				if cell.is_zapped():
+					if cell.is_bound_left():
+						self.cell_at(x-1, y).unbind()
+					if cell.is_bound_right():
+						self.cell_at(x+1, y).unbind()
+					cell.empty()
 
 class Pill:
 	LR = 0
@@ -223,9 +295,16 @@ class Game:
 		self.bottle = Bottle()
 		self.level = level
 		self.time = 0
+		self.zapped = False
+		self.gravity_done = False
+		self.state = 0
 	
 	def display(self):
-		return str(self.bottle)
+		bottle = str(self.bottle)
+		stats = ""
+		stats += "PILL " if self.pill is not None else "     "
+		stats += "STATE: %d" % self.state
+		return "%s\n%s" % (bottle, stats)
 
 	def begin(self):
 		self.bottle.empty()
@@ -271,8 +350,28 @@ class Game:
 			self.pill = None
 	
 	def tick(self):
-		if self.pill is None:
-			self.toss_pill()
-		self.bottle.apply_gravity()
-		self.move_down()
+		if self.pill is not None:
+			self.move_down()
+		else:
+			if self.state == 0:
+				self.gravity = 0
+				zapped = self.check_aligned()
+				if zapped:
+					self.state += 1
+				else:
+					self.state = 2
+			elif self.state == 1:
+				self.bottle.clear_zapped()
+				if self.bottle.apply_gravity() == 0:
+					self.state += 1
+			elif self.state == 2:
+				zapped = self.check_aligned()
+				if self.zapped:
+					self.state = 1
+				else:
+					self.state = 0
+					self.toss_pill()
+
+	def check_aligned(self):
+		return self.bottle.zap_aligned()
 
