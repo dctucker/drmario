@@ -2,8 +2,9 @@
 from game import Game
 from term import Term
 
-import time
-ticked = 0
+KEY_LEFT = '\033[D'
+KEY_RIGHT = '\033[C'
+KEY_DOWN = '\033[B'
 
 term = Term()
 game = Game()
@@ -17,57 +18,22 @@ def display():
 while True:
 	key = term.getch()
 	if key:
-		if key == '\033[B':
+		if key == KEY_DOWN:
 			game.move_down()
-		if key == '\033[D':
+		if key == KEY_LEFT:
 			game.move_left()
-		if key == '\033[C':
+		if key == KEY_RIGHT:
 			game.move_right()
 		if key == 'z':
 			game.rotate_pill(False)
 		if key == 'x':
 			game.rotate_pill(True)
 
-		if key == 'q':
+		if key in  ('q', '\033'):
 			break
 
 		display()
 	
-	now = time.time()
-	if now - ticked > 1:
-		ticked = now
-		game.tick()
+	if game.tick():
 		display()
-
-	#if key.is_pressed('left'):
-	#	game.move_left()
-	#elif key.is_pressed('right'):
-	#	game.move_right()
-	#elif key.is_pressed('z'):
-	#	game.rotate_pill(False)
-	#elif key.is_pressed('x'):
-	#	game.rotate_pill(True)
-	#else:
-	#	continue
-
-
-#def main(win):
-#	win.clear()
-#
-#	win.refresh()
-#	game = Game()
-#	game.begin()
-#	win.addstr(game.display())
-#	game.toss_pill()
-#
-#	win.nodelay(True)
-#	key = None
-#	win.addstr("Detected key:" + str(key))
-#	while True:
-#		key = win.getch()
-#		game.display()
-#		if key == ord('q'):
-#			break
-#	
-#curses.wrapper(main)
 
