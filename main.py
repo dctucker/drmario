@@ -2,10 +2,6 @@
 from game import Game
 from term import Term
 
-KEY_LEFT = '\033[D'
-KEY_RIGHT = '\033[C'
-KEY_DOWN = '\033[B'
-
 term = Term()
 game = Game(10, 0)
 game.begin()
@@ -18,21 +14,22 @@ def display():
 while True:
 	key = term.getch()
 	if key:
-		if key == KEY_DOWN:
+		if key in Term.KEY_DOWN:
 			game.move_down()
-		if key == KEY_LEFT:
+		if key in Term.KEY_LEFT:
 			game.move_left()
-		if key == KEY_RIGHT:
+		if key in Term.KEY_RIGHT:
 			game.move_right()
 		if key == 'z':
 			game.rotate_pill(False)
 		if key == 'x':
 			game.rotate_pill(True)
 
-		if key in  ('q', '\033'):
+		if key in ('q', '\033'):
 			break
 
 		display()
+		print(key)
 	
 	if game.tick():
 		display()
