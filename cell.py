@@ -82,20 +82,20 @@ class View:
 			Cell.RED: "▌Ѧ▐",
 			Cell.YELLOW: "▌Ѡ▐",
 			Cell.BLUE: "▌Ж▐",
-			Cell.EMPTY: " - ",
+			Cell.EMPTY: "   ",
 		}[cell.color()]
 
 	def render(cell):
 		a = View.ansi_color(cell) 
 		c = View.color_str(cell)
 		if cell.is_zapped():
-			c = "\033[24;7m>@<\033[27m"
+			c = "\033[24;7m<◙>\033[27m"
 		elif cell.is_pill():
 			c = " "
 			if cell.is_bound_left():
-				c = "│%s▐" % c
+				c = " %s▐" % c
 			elif cell.is_bound_right():
-				c = "▌%s│" % c
+				c = "▌%s " % c
 			else:
 				c = "▌%s▐" % c
 		return "%s%s" % (a, c)

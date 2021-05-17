@@ -40,6 +40,7 @@ class Term:
 	def cleanup_posix(self):
 		termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.oldterm)
 		fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags)
+		print("\033[?25h")
 
 	def init_nt(self):
 		os.system('cls')
@@ -61,7 +62,7 @@ class Term:
 		if is_nt():
 			os.system('cls')
 		else:
-			print('\033[J\033[H')
+			print('\033[?25l\033[J\033[H')
 			#os.system('clear')
 
 

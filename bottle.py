@@ -131,7 +131,7 @@ class Bottle:
 			self.cell_at(x+1, y).unbind()
 	
 	def zap_aligned(self):
-		zap = False
+		zap = 0
 		for y,row in enumerate(self.cells):
 			for x,cell in enumerate(row):
 				if cell.is_virus() or cell.is_pill():
@@ -146,7 +146,7 @@ class Bottle:
 						for dy in range(0, 4):
 							self.cell_at(x, y+dy).zap()
 							self.zap_bound(x, y+dy)
-						zap = True
+						zap += 1
 
 					# horizontal
 					aligned = True
@@ -157,7 +157,7 @@ class Bottle:
 						for dx in range(0, 4):
 							self.cell_at(x+dx, y).zap()
 							self.zap_bound(x+dx, y)
-						zap = True
+						zap += 1
 		return zap
 
 	def clear_zapped(self):

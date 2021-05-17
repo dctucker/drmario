@@ -25,6 +25,7 @@ class Game:
 		self.gravity_done = False
 		self.state = State.MOVING
 		self.next_pill = Pill()
+		self.combo = 0
 
 	def __str__(self):
 		return View.render(self)
@@ -88,11 +89,13 @@ class Game:
 			if self.pill is not None:
 				self.move_down()
 			if self.pill is None:
+				self.combo = 0
 				self.delay = 0.25
 				self.state = State.DROPPED
 		if self.state == State.DROPPED:
 			zapped = self.check_aligned()
 			if zapped:
+				self.combo += zapped
 				if self.bottle.virus_count() == 0:
 					self.state = State.WIN
 					return True
@@ -129,5 +132,6 @@ class View:
 		stats += "PILL " if game.pill is not None else "     "
 		stats += "STATE: %d " % game.state
 		stats += "VIRUS: %d " % game.bottle.virus_count()
+		stats += "COMBO: %d " % game.combo
 		return "     %s\n     %s\n%s" % (next_pill, bottle, stats)
 
