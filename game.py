@@ -76,8 +76,19 @@ class Game:
 			self.bottle.format_pill(self.pill)
 			self.pill = None
 
+	def slam_pill(self):
+		if self.pill is None: return
+		self.bottle.erase_pill(self.pill)
+		potential = True
+		dy = 0
+		while self.bottle.can_move_pill(self.pill, 0, dy+1):
+			dy += 1
+		self.pill.move(0, dy)
+		self.bottle.format_pill(self.pill)
+		self.pill = None
+
 	def reset_delay(self):
-		bpms = [ 85.5, 185.3, 235 ]
+		bpms = [ 85.5, 185.3, 235.0 ]
 		self.delay = 60.0 / bpms[self.speed]
 	
 	def tick(self):

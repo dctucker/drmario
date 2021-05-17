@@ -4,10 +4,11 @@ class Game:
 		next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
 		bottle = "\n     ".join( game.bottle.lines() )
 		stats = ""
-		stats += "PILL " if game.pill is not None else "     "
 		stats += "STATE: %d " % game.state
+		stats += "COMBO: %d\n" % game.combo
 		stats += "VIRUS: %d " % game.bottle.virus_count()
-		stats += "COMBO: %d " % game.combo
+		stats += "SPEED: %d " % game.speed
+		stats += "LEVEL: %d " % game.level
 		return "     %s\n     %s\n%s" % (next_pill, bottle, stats)
 
 class Bottle:
