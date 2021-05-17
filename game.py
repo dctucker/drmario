@@ -4,6 +4,7 @@ import time
 
 from bottle import Bottle
 from pill import Pill
+from views import Game as View
 
 class State:
 	MOVING = 0
@@ -123,15 +124,4 @@ class Game:
 
 	def lose(self):
 		return self.state == State.LOSE
-
-class View:
-	def render(game):
-		next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
-		bottle = "\n     ".join( game.bottle.lines() )
-		stats = ""
-		stats += "PILL " if game.pill is not None else "     "
-		stats += "STATE: %d " % game.state
-		stats += "VIRUS: %d " % game.bottle.virus_count()
-		stats += "COMBO: %d " % game.combo
-		return "     %s\n     %s\n%s" % (next_pill, bottle, stats)
 

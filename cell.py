@@ -1,5 +1,7 @@
 import random
 
+from views import Cell as View
+
 class Cell:
 	EMPTY = 0
 	PILL = 1
@@ -67,36 +69,4 @@ class Cell:
 		return self.value & self.BIND_LEFT
 	def is_bound_right(self):
 		return self.value & self.BIND_RIGHT
-
-class View:
-	def ansi_color(cell):
-		return {
-			Cell.RED: "\033[0;30;41;4m",
-			Cell.YELLOW: "\033[0;30;43;4m",
-			Cell.BLUE: "\033[0;30;46;4m",
-			Cell.EMPTY: "\033[0;34;40m",
-		}[cell.color()]
-
-	def color_str(cell):
-		return {
-			Cell.RED: "▌Ѧ▐",
-			Cell.YELLOW: "▌Ѡ▐",
-			Cell.BLUE: "▌Ж▐",
-			Cell.EMPTY: "   ",
-		}[cell.color()]
-
-	def render(cell):
-		a = View.ansi_color(cell) 
-		c = View.color_str(cell)
-		if cell.is_zapped():
-			c = "\033[24;7m<◙>\033[27m"
-		elif cell.is_pill():
-			c = " "
-			if cell.is_bound_left():
-				c = " %s▐" % c
-			elif cell.is_bound_right():
-				c = "▌%s " % c
-			else:
-				c = "▌%s▐" % c
-		return "%s%s" % (a, c)
 

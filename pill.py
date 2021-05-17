@@ -1,4 +1,5 @@
 from cell import Cell
+from views import Pill as View
 
 class Pill:
 	LR = 0
@@ -67,8 +68,4 @@ class Pill:
 
 	def __str__(self):
 		return View.render(self)
-
-class View:
-	def render(pill):
-		return str(pill.cell1) + str(pill.cell2) + "\033[0m"
 

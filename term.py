@@ -1,4 +1,8 @@
-import os, sys
+import os, sys, atexit
+
+def is_nt():
+	return os.name == 'nt'
+
 try:
    import colorama
    colorama.init()
@@ -7,11 +11,6 @@ except:
        import tendo.ansiterm
    except:
        pass
-
-import atexit
-
-def is_nt():
-	return os.name == 'nt'
 
 if is_nt():
 	import msvcrt
@@ -43,9 +42,16 @@ class Term:
 
 		atexit.register(self.cleanup_posix)
 
-	def cleanup_posix(self):
+	def block(self):
 		termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.oldterm)
 		fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags)
+
+	def unblock(self):
+		termios.tcsetattr(self.fd, termios.TCSANOW, self.newattr)
+		fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags | os.O_NONBLOCK)
+
+	def cleanup_posix(self):
+		self.block()
 		print("\033[?25h")
 
 	def init_nt(self):
@@ -71,7 +77,12 @@ class Term:
 				ret += c
 		return ret
 
+	def display(self, s):
+		self.block()
+		self.clear()
+		print(str(s))
+		self.unblock()
+
 	def clear(self):
 		print('\033[?25l\033[J\033[H')
-
 

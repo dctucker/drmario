@@ -2,6 +2,7 @@ import random
 
 from cell import Cell
 from pill import Pill
+from views import Bottle as View
 
 class Bottle:
 	def __init__(self, other=None, width=8, height=16):
@@ -170,21 +171,3 @@ class Bottle:
 						self.cell_at(x+1, y).unbind()
 					cell.empty()
 
-class View:
-	def bottle_top(bottle):
-		spaces = " " * bottle.width
-		top = '═' * bottle.width * 1
-		return [
-			" %s╥      ╥%s " % (spaces, spaces),
-			"╔%s╝      ╚%s╗" % (top,top),
-		]
-
-	def lines(bottle):
-		rows = ["".join(str(c) for c in row) for row in bottle.cells]
-		cells = [("║%s\033[0m║" % row) for row in rows]
-		return [] + View.bottle_top(bottle) + cells + [
-			"╚" + "═" * bottle.width * 3 + "╝",
-		]
-
-	def render(bottle):
-		return "\n".join(View.lines(bottle)) + "\n"

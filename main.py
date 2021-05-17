@@ -7,10 +7,6 @@ game = Game(10, 0)
 game.begin()
 game.toss_pill()
 
-def display():
-	term.clear()
-	print(str(game))
-
 while True:
 	key = term.getch()
 	if key:
@@ -28,11 +24,10 @@ while True:
 		if key in ('q', '\033'):
 			break
 
-		display()
-		print(key)
+		term.display(game)
 	
 	if game.tick():
-		display()
+		term.display(game)
 
 	if game.win():
 		print("YOU WIN!")
