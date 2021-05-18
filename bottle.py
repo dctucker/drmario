@@ -32,7 +32,7 @@ class Bottle:
 			cell = self.cell_at(x, y)
 			cell.infect()
 	
-	def drop_pill(self, pill):
+	def toss_pill(self, pill):
 		pill.x = int(self.width / 2) - 1
 		pill.y = 1
 		x1,y1,x2,y2 = pill.coords()

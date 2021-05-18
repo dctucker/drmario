@@ -37,9 +37,9 @@ class Game:
 
 	def toss_pill(self):
 		self.pill = self.next_pill
-		drop = self.bottle.drop_pill(self.pill)
+		toss = self.bottle.toss_pill(self.pill)
 		self.next_pill = Pill()
-		return drop
+		return toss
 
 	def rotate_pill(self, back = False):
 		if self.pill is None: return
