@@ -43,10 +43,14 @@ class Term:
 		atexit.register(self.cleanup_posix)
 
 	def block(self):
+		if is_nt():
+			return
 		termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.oldterm)
 		fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags)
 
 	def unblock(self):
+		if is_nt():
+			return
 		termios.tcsetattr(self.fd, termios.TCSANOW, self.newattr)
 		fcntl.fcntl(self.fd, fcntl.F_SETFL, self.oldflags | os.O_NONBLOCK)
 
