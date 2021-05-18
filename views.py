@@ -1,9 +1,15 @@
 
 class Game:
 	def render(game):
-		next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
-		bottle = "\n     ".join( game.bottle.lines() )
+		next_pill = ""
+		bottle = ""
 		stats = ""
+		if game.is_paused():
+			next_pill = "\033[J\033[H\n"
+			bottle = "\n     ".join( Bottle.lines(game.bottle, empty=True) )
+		else:
+			next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
+			bottle = "\n     ".join( game.bottle.lines() )
 		stats += "STATE: %d " % game.state
 		stats += "COMBO: %d\n" % game.combo
 		stats += "VIRUS: %d " % game.bottle.virus_count()
@@ -20,8 +26,11 @@ class Bottle:
 			"╔%s╝      ╚%s╗" % (top,top),
 		]
 
-	def lines(bottle):
-		rows = ["".join(str(c) for c in row) for row in bottle.cells]
+	def lines(bottle, empty=False):
+		if empty:
+			rows = ["".join("   " for c in row) for row in bottle.cells]
+		else:
+			rows = ["".join(str(c) for c in row) for row in bottle.cells]
 		cells = [("║%s\033[0m║" % row) for row in rows]
 		return [] + Bottle.bottle_top(bottle) + cells + [
 			"╚" + "═" * bottle.width * 3 + "╝",
@@ -31,6 +40,8 @@ class Bottle:
 		return "\n".join(Bottle.lines(bottle)) + "\n"
 
 class Cell:
+	LPAD = '▎'
+	RPAD = '▕'
 	def ansi_color(cell):
 		return {
 			cell.RED: "\033[0;30;41;4m",
@@ -40,14 +51,16 @@ class Cell:
 		}[cell.color()]
 
 	def color_str(cell):
+		L,R = Cell.LPAD, Cell.RPAD
 		return {
-			cell.RED: "▌Ѧ▐",
-			cell.YELLOW: "▌Ѡ▐",
-			cell.BLUE: "▌Ж▐",
+			cell.RED: "%sѦ%s" % (L,R),
+			cell.YELLOW: "%sѠ%s" % (L,R),
+			cell.BLUE: "%sЖ%s" % (L,R),
 			cell.EMPTY: "   ",
 		}[cell.color()]
 
 	def render(cell):
+		L,R = Cell.LPAD, Cell.RPAD
 		a = Cell.ansi_color(cell)
 		c = Cell.color_str(cell)
 		if cell.is_zapped():
@@ -55,11 +68,13 @@ class Cell:
 		elif cell.is_pill():
 			c = " "
 			if cell.is_bound_left():
-				c = " %s▐" % c
+				c = "╴" + c + R
 			elif cell.is_bound_right():
-				c = "▌%s " % c
+				c = L + c + "╶"
+			elif cell.is_bound_below():
+				c = "\033[24m" + L + c + R
 			else:
-				c = "▌%s▐" % c
+				c = L + c + R
 		return "%s%s" % (a, c)
 
 class Pill:

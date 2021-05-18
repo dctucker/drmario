@@ -54,6 +54,11 @@ class Bottle:
 			pill.bind_ltr()
 		else:
 			pill.unbind()
+			if y1 < y2:
+				pill.cell1.bind_below()
+			else:
+				pill.cell2.bind_below()
+
 		pcell1.value = pill.cell1.value
 		pcell2.value = pill.cell2.value
 

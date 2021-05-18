@@ -25,24 +25,26 @@ def main(args):
 	game.begin()
 	game.toss_pill()
 
+	keymap = {
+		Term.KEY_DOWN: 'move_down',
+		Term.KEY_LEFT: 'move_left',
+		Term.KEY_RIGHT:'move_right',
+		('z',): 'rotate_pill_back',
+		('x',): 'rotate_pill',
+		(' ',): 'slam_pill',
+		('p',): 'toggle_pause',
+		('q','\033'): 'quit',
+	}
+
 	while True:
 		key = term.getch()
 		if key:
-			if key in Term.KEY_DOWN:
-				game.move_down()
-			if key in Term.KEY_LEFT:
-				game.move_left()
-			if key in Term.KEY_RIGHT:
-				game.move_right()
-			if key == 'z':
-				game.rotate_pill(False)
-			if key == 'x':
-				game.rotate_pill(True)
-			if key == ' ':
-				game.slam_pill()
-
-			if key in ('q', '\033'):
-				break
+			for keys, action in keymap.items():
+				if key in keys:
+					if game.is_paused():
+						game.toggle_pause()
+					getattr(game, action)()
+					break
 
 			term.display(game)
 		
@@ -54,6 +56,9 @@ def main(args):
 			break
 		if game.lose():
 			print("YOU LOSE")
+			break
+		if game.has_quit():
+			print("BYE")
 			break
 
 if __name__ == '__main__':

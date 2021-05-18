@@ -13,6 +13,8 @@ class State:
 	NEW_PILL = 3
 	WIN = 4
 	LOSE = 5
+	QUIT = 6
+	PAUSED = 99
 
 class Game:
 	def __init__(self, level = 1, speed = 1):
@@ -51,6 +53,9 @@ class Game:
 				self.pill.move(-1, 0)
 				self.pill.rotate(back)
 		self.bottle.format_pill(self.pill)
+
+	def rotate_pill_back(self):
+		self.rotate_pill(back=True)
 
 	def move_left(self):
 		if self.pill is None: return
@@ -97,6 +102,8 @@ class Game:
 			return False
 		self.ticked = now
 
+		if self.state == State.PAUSED:
+			return False
 		if self.state == State.MOVING:
 			if self.pill is not None:
 				self.move_down()
@@ -130,9 +137,32 @@ class Game:
 	def check_aligned(self):
 		return self.bottle.zap_aligned()
 
+	def toggle_pause(self):
+		if self.state == State.PAUSED:
+			self.unpause()
+		else:
+			self.pause()
+
+	def pause(self):
+		self.previous_state = self.state
+		self.state = State.PAUSED
+
+	def unpause(self):
+		self.state = self.previous_state
+		del self.previous_state
+
+	def is_paused(self):
+		return self.state == State.PAUSED
+
 	def win(self):
 		return self.state == State.WIN
 
 	def lose(self):
 		return self.state == State.LOSE
+
+	def has_quit(self):
+		return self.state == State.QUIT
+
+	def quit(self):
+		self.state = State.QUIT
 

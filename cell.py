@@ -13,6 +13,7 @@ class Cell:
 	BIND_NONE = 0
 	BIND_LEFT = 16
 	BIND_RIGHT = 32
+	BIND_BELOW = 64
 
 	def __init__(self, value=EMPTY):
 		self.value = value
@@ -45,11 +46,13 @@ class Cell:
 		self.bind(self.BIND_LEFT)
 	def bind_right(self):
 		self.bind(self.BIND_RIGHT)
+	def bind_below(self):
+		self.value |= self.BIND_BELOW
 
 	def zap(self):
 		self.value |= Cell.ZAP
 	def unbind(self):
-		self.value &= ~ (Cell.BIND_LEFT | Cell.BIND_RIGHT)
+		self.value &= ~(Cell.BIND_LEFT | Cell.BIND_RIGHT | Cell.BIND_BELOW)
 	def empty(self):
 		self.value = Cell.EMPTY
 
@@ -69,4 +72,6 @@ class Cell:
 		return self.value & self.BIND_LEFT
 	def is_bound_right(self):
 		return self.value & self.BIND_RIGHT
+	def is_bound_below(self):
+		return self.value & self.BIND_BELOW
 
