@@ -47,19 +47,19 @@ class Cell:
 	RPAD = '▐'
 	def ansi_color(cell):
 		return {
-			Flags.RED: "\033[0;30;41;4m",
-			Flags.YELLOW: "\033[0;30;43;4m",
-			Flags.BLUE: "\033[0;30;46;4m",
-			Flags.EMPTY: "\033[0;34;40m",
+			Flags.RED    : "\033[0;30;41;4m",
+			Flags.YELLOW : "\033[0;30;43;4m",
+			Flags.BLUE   : "\033[0;30;46;4m",
+			Flags.EMPTY  : "\033[0;34;40m",
 		}[cell.color()]
 
 	def color_str(cell):
 		L,R = Cell.LPAD, Cell.RPAD
 		return {
-			Flags.RED: "%sѦ%s" % (L,R),
-			Flags.YELLOW: "%sѠ%s" % (L,R),
-			Flags.BLUE: "%sЖ%s" % (L,R),
-			Flags.EMPTY: "   ",
+			Flags.RED    : "%sѦ%s" % (L,R),
+			Flags.YELLOW : "%sѠ%s" % (L,R),
+			Flags.BLUE   : "%sЖ%s" % (L,R),
+			Flags.EMPTY  : "   ",
 		}[cell.color()]
 
 	def render(cell):

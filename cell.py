@@ -12,24 +12,25 @@ class Cell:
 
 	@classmethod
 	def random_color(cls):
-		return Flags.RED * random.randint(1,3)
+		return Flags(Flags.RED * random.randint(1,3))
 
 	def infect(self, color=None):
 		if color is None:
 			color = self.random_color()
 		assert color in (Flags.RED, Flags.YELLOW, Flags.BLUE)
-		self.value = Flags.VIRUS | color
+		self.value = Flags(Flags.VIRUS | color)
 
 	def treat(self, color=None, bound=Flags.BIND_NONE):
 		if color is None:
 			color = self.random_color()
 		assert color in (Flags.RED, Flags.YELLOW, Flags.BLUE)
-		self.value = Flags.PILL | color | bound
+		self.value = Flags(Flags.PILL | color | bound)
 
 	def bind(self, value):
 		mask = Flags.BIND_LEFT | Flags.BIND_RIGHT
 		self.value &= ~mask
 		self.value |= value & mask
+		self.value = Flags(self.value)
 
 	def bind_left(self):
 		self.bind(Flags.BIND_LEFT)
@@ -41,14 +42,14 @@ class Cell:
 	def zap(self):
 		self.value |= Flags.ZAP
 	def unbind(self):
-		self.value &= ~ (Flags.BIND_LEFT | Flags.BIND_RIGHT | Flags.BIND_BELOW)
+		self.value &= ~(Flags.BIND_LEFT | Flags.BIND_RIGHT | Flags.BIND_BELOW)
 	def empty(self):
 		self.value = Flags.EMPTY
 
 	def is_empty(self):
 		return self.value == Flags.EMPTY
 	def color(self):
-		return self.value & (Flags.RED | Flags.YELLOW & Flags.BLUE)
+		return self.value & (Flags.RED | Flags.YELLOW | Flags.BLUE)
 	def is_pill(self):
 		return self.value & Flags.PILL
 	def is_virus(self):

@@ -17,14 +17,11 @@ class Pill:
 			self.y = other.y
 			self.cell1 = other.cell1
 			self.cell2 = other.cell2
-			self.rotation = other.rotation
+			self.rotation = Orientation(other.rotation)
 	
 	def rotate(self, back=False):
-		if back:
-			self.rotation += 3
-		else:
-			self.rotation += 1
-		self.rotation %= 4
+		rot = self.rotation + (3 if back else 1)
+		self.rotation = Orientation(rot % 4)
 
 	def move(self, dx, dy):
 		self.x += dx

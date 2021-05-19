@@ -32,3 +32,7 @@ class Orientation(IntEnum):
 	RL = 2
 	UD = 3
 
+class Speed(IntEnum):
+	LOW = 0
+	MED = 1
+	HIGH = 2

@@ -1,16 +1,16 @@
 import sys
 import time
 
-from enums import State
+from enums import State, Speed
 from bottle import Bottle
 from pill import Pill
 from views import Game as View
 
 class Game:
-	def __init__(self, level = 1, speed = 1):
+	def __init__(self, level = 1, speed = Speed.MED):
 		self.bottle = Bottle()
 		self.level = level
-		self.speed = speed
+		self.speed = Speed(speed)
 
 		self.reset_delay()
 		self.ticked = 0
@@ -138,7 +138,7 @@ class Game:
 		self.state = State.PAUSED
 
 	def unpause(self):
-		self.state = self.previous_state
+		self.state = State(self.previous_state)
 		del self.previous_state
 
 	def is_paused(self):
