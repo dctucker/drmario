@@ -1,11 +1,8 @@
+from enums import Orientation
 from cell import Cell
 from views import Pill as View
 
 class Pill:
-	LR = 0
-	DU = 1
-	RL = 2
-	UD = 3
 	def __init__(self, other=None):
 		if other is None:
 			self.cell1 = Cell()
@@ -14,7 +11,7 @@ class Pill:
 			self.cell2.treat()
 			self.cell1.bind_right()
 			self.cell2.bind_left()
-			self.rotation = self.LR
+			self.rotation = Orientation.LR
 		else:
 			self.x = other.x
 			self.y = other.y
@@ -47,23 +44,23 @@ class Pill:
 		return self.xy1() + self.xy2()
 
 	def xy1(self):
-		if self.rotation == self.LR:
+		if self.rotation == Orientation.LR:
 			return self.x, self.y
-		elif self.rotation == self.DU:
+		elif self.rotation == Orientation.DU:
 			return self.x, self.y
-		elif self.rotation == self.RL:
+		elif self.rotation == Orientation.RL:
 			return self.x + 1, self.y
-		elif self.rotation == self.UD:
+		elif self.rotation == Orientation.UD:
 			return self.x, self.y - 1
 
 	def xy2(self):
-		if self.rotation == self.LR:
+		if self.rotation == Orientation.LR:
 			return self.x + 1, self.y
-		elif self.rotation == self.DU:
+		elif self.rotation == Orientation.DU:
 			return self.x, self.y - 1
-		elif self.rotation == self.RL:
+		elif self.rotation == Orientation.RL:
 			return self.x, self.y
-		elif self.rotation == self.UD:
+		elif self.rotation == Orientation.UD:
 			return self.x, self.y
 
 	def __str__(self):

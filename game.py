@@ -1,20 +1,10 @@
-#from enum import Enum
 import sys
 import time
 
+from enums import State
 from bottle import Bottle
 from pill import Pill
 from views import Game as View
-
-class State:
-	MOVING = 0
-	DROPPED = 1
-	FALLING = 2
-	NEW_PILL = 3
-	WIN = 4
-	LOSE = 5
-	QUIT = 6
-	PAUSED = 99
 
 class Game:
 	def __init__(self, level = 1, speed = 1):

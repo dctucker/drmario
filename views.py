@@ -1,3 +1,4 @@
+from enums import Flags
 
 class Game:
 	def render(game):
@@ -10,12 +11,12 @@ class Game:
 		else:
 			next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
 			bottle = "\n     ".join( game.bottle.lines() )
-		stats += "STATE: %d " % game.state
-		stats += "COMBO: %d\n" % game.combo
+		stats += "STATE: %s " % game.state.name
+		stats += "COMBO: %d          \n" % game.combo
 		stats += "VIRUS: %d " % game.bottle.virus_count()
 		stats += "SPEED: %d " % game.speed
 		stats += "LEVEL: %d " % game.level
-		return "     %s\n     %s\n%s" % (next_pill, bottle, stats)
+		return "     %s\n     %s\n%s          " % (next_pill, bottle, stats)
 
 class Bottle:
 	def bottle_top(bottle):
@@ -40,23 +41,25 @@ class Bottle:
 		return "\n".join(Bottle.lines(bottle)) + "\n"
 
 class Cell:
-	LPAD = '▎'
-	RPAD = '▕'
+	#LPAD = '▎'
+	#RPAD = '▕'
+	LPAD = '▌'
+	RPAD = '▐'
 	def ansi_color(cell):
 		return {
-			cell.RED: "\033[0;30;41;4m",
-			cell.YELLOW: "\033[0;30;43;4m",
-			cell.BLUE: "\033[0;30;46;4m",
-			cell.EMPTY: "\033[0;34;40m",
+			Flags.RED: "\033[0;30;41;4m",
+			Flags.YELLOW: "\033[0;30;43;4m",
+			Flags.BLUE: "\033[0;30;46;4m",
+			Flags.EMPTY: "\033[0;34;40m",
 		}[cell.color()]
 
 	def color_str(cell):
 		L,R = Cell.LPAD, Cell.RPAD
 		return {
-			cell.RED: "%sѦ%s" % (L,R),
-			cell.YELLOW: "%sѠ%s" % (L,R),
-			cell.BLUE: "%sЖ%s" % (L,R),
-			cell.EMPTY: "   ",
+			Flags.RED: "%sѦ%s" % (L,R),
+			Flags.YELLOW: "%sѠ%s" % (L,R),
+			Flags.BLUE: "%sЖ%s" % (L,R),
+			Flags.EMPTY: "   ",
 		}[cell.color()]
 
 	def render(cell):
