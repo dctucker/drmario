@@ -14,7 +14,7 @@ class Game:
 		stats += "STATE: %s " % game.state.name
 		stats += "COMBO: %d          \n" % game.combo
 		stats += "VIRUS: %d " % game.bottle.virus_count()
-		stats += "SPEED: %d " % game.speed
+		stats += "SPEED: %s " % game.speed.name
 		stats += "LEVEL: %d " % game.level
 		return "     %s\n     %s\n%s          " % (next_pill, bottle, stats)
 

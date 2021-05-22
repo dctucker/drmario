@@ -12,6 +12,18 @@ def usage(name):
 	print()
 	print("\tControls: left/right/down moves, z/x rotates")
 
+keymap = {
+	'move_down':    Term.KEY_DOWN,
+	'move_left':    Term.KEY_LEFT,
+	'move_right':   Term.KEY_RIGHT,
+	'rotate_pill_back': ('z',),
+	'rotate_pill':  ('x',),
+	'slam_pill':    (' ',),
+	'toggle_pause': ('p','\n'),
+	'restart':      ('r',),
+	'quit':         ('q','\033'),
+}
+
 def main(args):
 	def arg(i, default=None):
 		if len(args) > i:
@@ -29,42 +41,27 @@ def main(args):
 	game.begin()
 	game.toss_pill()
 
-	keymap = {
-		Term.KEY_DOWN: 'move_down',
-		Term.KEY_LEFT: 'move_left',
-		Term.KEY_RIGHT:'move_right',
-		('z',): 'rotate_pill_back',
-		('x',): 'rotate_pill',
-		(' ',): 'slam_pill',
-		('p',): 'toggle_pause',
-		('q','\033'): 'quit',
-	}
+	def check_actions(key, actions):
+		for action in actions:
+			if key in keymap[action]:
+				getattr(game, action)()
+				return True
+		return False
 
-	while True:
+	while not game.has_quit():
 		key = term.getch()
 		if key:
 			if game.is_paused():
-				game.toggle_pause()
-				continue
-			for keys, action in keymap.items():
-				if key in keys:
-					getattr(game, action)()
-					break
+				check_actions(key, ('toggle_pause', 'quit', 'restart'))
+			elif game.over():
+				check_actions(key, ('quit', 'restart'))
+			else:
+				check_actions(key, keymap.keys())
 
 			term.display(game)
 		
 		if game.tick():
 			term.display(game)
-
-		if game.win():
-			print("YOU WIN!")
-			break
-		if game.lose():
-			print("YOU LOSE")
-			break
-		if game.has_quit():
-			print("BYE")
-			break
 
 if __name__ == '__main__':
 	main(sys.argv)

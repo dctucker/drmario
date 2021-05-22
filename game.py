@@ -8,16 +8,17 @@ from views import Game as View
 
 class Game:
 	def __init__(self, level = 1, speed = Speed.MED):
-		self.bottle = Bottle()
 		self.level = level
 		self.speed = Speed(speed)
+		self.setup()
 
-		self.reset_delay()
-		self.ticked = 0
-		self.zapped = False
-		self.gravity_done = False
-		self.state = State.MOVING
+	def setup(self):
+		self.bottle = Bottle()
 		self.next_pill = Pill()
+		self.reset_delay()
+		self.state = State.MOVING
+		self.ticked = 0
+		self.zapped = 0
 		self.combo = 0
 
 	def __str__(self):
@@ -141,6 +142,11 @@ class Game:
 		self.state = State(self.previous_state)
 		del self.previous_state
 
+	def restart(self):
+		self.setup()
+		self.begin()
+		self.toss_pill()
+
 	def is_paused(self):
 		return self.state == State.PAUSED
 
@@ -149,6 +155,9 @@ class Game:
 
 	def lose(self):
 		return self.state == State.LOSE
+
+	def over(self):
+		return self.state in (State.WIN, State.LOSE)
 
 	def has_quit(self):
 		return self.state == State.QUIT
