@@ -1,51 +1,79 @@
+"""provides classes that enable viewing the game and its components"""
+
 from enums import Flags
 
 class Game:
+	"""view of the game"""
+	@staticmethod
 	def render(game):
+		"""return a string showing the entire game in its current state"""
 		next_pill = ""
 		bottle = ""
-		stats = ""
+		stats = []
 		if game.is_paused():
 			next_pill = "\033[J\033[H\n"
 			bottle = "\n     ".join( Bottle.lines(game.bottle, empty=True) )
 		else:
 			next_pill = " " * game.bottle.width * 2 + "   " + str(game.next_pill)
 			bottle = "\n     ".join( game.bottle.lines() )
-		stats += "STATE: %s " % game.state.name
-		stats += "COMBO: %d          \n" % game.combo
-		stats += "VIRUS: %d " % game.bottle.virus_count()
-		stats += "SPEED: %s " % game.speed.name
-		stats += "LEVEL: %d " % game.level
-		return "     %s\n     %s\n%s          " % (next_pill, bottle, stats)
+		stats = "".join([
+			"STATE:", game.state.name, " ",
+			"COMBO:", str(game.combo), "          \n",
+			"VIRUS:", str(game.bottle.virus_count()), " ",
+			"SPEED:", game.speed.name, " ",
+			"LEVEL:", str(game.level), "\n",
+			"SCORE:", str(game.score), " \n",
+		])
+		return "".join([
+			"     ",
+			next_pill,
+			"\n     ",
+			bottle,
+			"\n",
+			stats,
+			"          "
+		])
 
 class Bottle:
+	"""view of the bottle"""
+
+	@staticmethod
 	def bottle_top(bottle):
-		spaces = " " * bottle.width
+		"""return an array of strings representing the top part of the bottle"""
+		spc = " " * bottle.width
 		top = '═' * bottle.width * 1
 		return [
-			" %s╥      ╥%s " % (spaces, spaces),
-			"╔%s╝      ╚%s╗" % (top,top),
+			"".join([" ", spc, "╥      ╥", spc, " "]),
+			"".join(["╔", top, "╝      ╚", top, "╗"]),
 		]
 
+	@staticmethod
 	def lines(bottle, empty=False):
+		"""return an array of strings representing the outline of the bottle"""
 		if empty:
 			rows = ["".join("   " for c in row) for row in bottle.cells]
 		else:
 			rows = ["".join(str(c) for c in row) for row in bottle.cells]
-		cells = [("║%s\033[0m║" % row) for row in rows]
+		cells = ["".join(["║", row, "\033[0m║"]) for row in rows]
 		return [] + Bottle.bottle_top(bottle) + cells + [
 			"╚" + "═" * bottle.width * 3 + "╝",
 		]
 
+	@staticmethod
 	def render(bottle):
+		"""return a string representing the entire bottle"""
 		return "\n".join(Bottle.lines(bottle)) + "\n"
 
 class Cell:
+	"""view of a cell"""
 	#LPAD = '▎'
 	#RPAD = '▕'
 	LPAD = '▌'
 	RPAD = '▐'
+
+	@staticmethod
 	def ansi_color(cell):
+		"""return an ANSI escape code for a given color"""
 		return {
 			Flags.RED    : "\033[0;30;41;4m",
 			Flags.YELLOW : "\033[0;30;43;4m",
@@ -53,17 +81,21 @@ class Cell:
 			Flags.EMPTY  : "\033[0;34;40m",
 		}[cell.color()]
 
+	@staticmethod
 	def color_str(cell):
-		L,R = Cell.LPAD, Cell.RPAD
+		"""return a bare string representing the given cell"""
+		l,r = Cell.LPAD, Cell.RPAD
 		return {
-			Flags.RED    : "%sѦ%s" % (L,R),
-			Flags.YELLOW : "%sѠ%s" % (L,R),
-			Flags.BLUE   : "%sЖ%s" % (L,R),
+			Flags.RED    : "".join([l, "Ѧ" , r]),
+			Flags.YELLOW : "".join([l, "Ѡ" , r]),
+			Flags.BLUE   : "".join([l, "Ж" , r]),
 			Flags.EMPTY  : "   ",
 		}[cell.color()]
 
+	@staticmethod
 	def render(cell):
-		L,R = Cell.LPAD, Cell.RPAD
+		"""return a complete ANSI string for the given cell"""
+		l,r = Cell.LPAD, Cell.RPAD
 		a = Cell.ansi_color(cell)
 		c = Cell.color_str(cell)
 		if cell.is_zapped():
@@ -71,16 +103,19 @@ class Cell:
 		elif cell.is_pill():
 			c = " "
 			if cell.is_bound_left():
-				c = "╴" + c + R
+				c = "╴" + c + r
 			elif cell.is_bound_right():
-				c = L + c + "╶"
+				c = l + c + "╶"
 			elif cell.is_bound_below():
-				c = "\033[24m" + L + c + R
+				c = "\033[24m" + l + c + r
 			else:
-				c = L + c + R
-		return "%s%s" % (a, c)
+				c = l + c + r
+		return "".join([a, c])
 
 class Pill:
-	def render(pill):
-		return str(pill.cell1) + str(pill.cell2) + "\033[0m"
+	"""view of a pill"""
 
+	@staticmethod
+	def render(pill):
+		"""return a complete ANSI string representing the given pill"""
+		return str(pill.cell1) + str(pill.cell2) + "\033[0m"

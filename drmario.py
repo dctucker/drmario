@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Implementation of that classic NES game with pills and viruses"""
+
 import sys
 
 from enums import Speed
@@ -6,6 +8,7 @@ from game import Game
 from term import Term
 
 def usage(name):
+	"""show the help text for this executable"""
 	print(f"Usage: {name} <level> <speed>")
 	print("\tlevel is 1 to 20, default 10")
 	print("\tspeed is 0/1/2 for low/med/high, default 1")
@@ -25,6 +28,7 @@ keymap = {
 }
 
 def main(args):
+	"""entrypoint"""
 	def arg(i, default=None):
 		if len(args) > i:
 			return args[i]
@@ -59,7 +63,7 @@ def main(args):
 				check_actions(key, keymap.keys())
 
 			term.display(game)
-		
+
 		if game.tick():
 			term.display(game)
 

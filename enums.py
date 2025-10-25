@@ -1,7 +1,10 @@
+"""provides constants used by the game logic"""
+
 from enum import Enum, IntEnum, IntFlag
 
 # Game
 class State(Enum):
+	"""game state constants"""
 	MOVING = 0
 	DROPPED = 1
 	FALLING = 2
@@ -13,6 +16,8 @@ class State(Enum):
 
 # Cell
 class Flags(IntFlag):
+	"""bits that describe board states"""
+	#pylint: disable=implicit-flag-alias
 	EMPTY = 0
 	PILL = 1
 	VIRUS = 2
@@ -27,12 +32,14 @@ class Flags(IntFlag):
 
 # Pill
 class Orientation(IntEnum):
+	"""describes pill rotation"""
 	LR = 0
 	DU = 1
 	RL = 2
 	UD = 3
 
 class Speed(IntEnum):
+	"""constants describing the game speed"""
 	LOW = 0
 	MED = 1
 	HIGH = 2

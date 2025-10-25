@@ -1,3 +1,5 @@
+"""provides the Bottle class"""
+
 import random
 
 from cell import Cell
@@ -5,6 +7,8 @@ from pill import Pill
 from views import Bottle as View
 
 class Bottle:
+	"""models the bottle in the context of the game"""
+
 	def __init__(self, other=None, width=8, height=16):
 		self.width = width
 		self.height = height
@@ -17,13 +21,16 @@ class Bottle:
 		return View.render(self)
 
 	def lines(self):
+		"""render this bottle using its view class"""
 		return View.lines(self)
 
 	def empty(self):
+		"""set all cells in the bottle to empty value"""
 		self.cells = [[Cell() for row in range(0,self.width)] for col in range(0,self.height)]
-	
+
 	def infect(self, count):
-		sh4 = (self.height - 4)
+		"""add viruses at random into the bottle"""
+		sh4 = self.height - 4
 		full = count / (sh4 * self.width)
 		cap = max(4, self.height - max(self.height/2, full * self.height) )
 		while self.virus_count() < count:
@@ -31,8 +38,9 @@ class Bottle:
 			y = random.randint(int(cap), self.height-1)
 			cell = self.cell_at(x, y)
 			cell.infect()
-	
+
 	def toss_pill(self, pill):
+		"""attempt to toss a pill into the bottle and return True if successful"""
 		pill.x = int(self.width / 2) - 1
 		pill.y = 1
 		x1,y1,x2,y2 = pill.coords()
@@ -41,10 +49,11 @@ class Bottle:
 		if cell1.is_empty() and cell2.is_empty():
 			self.format_pill(pill)
 			return True
-		else:
-			return False
-	
+
+		return False
+
 	def format_pill(self, pill):
+		"""assign bindings to the pill and set the cells accordingly"""
 		x1,y1,x2,y2 = pill.coords()
 		pcell1 = self.cell_at(x1,y1)
 		pcell2 = self.cell_at(x2,y2)
@@ -63,6 +72,7 @@ class Bottle:
 		pcell2.value = pill.cell2.value
 
 	def erase_pill(self, pill):
+		"""erase a pill from the cells"""
 		x1,y1,x2,y2 = pill.coords()
 		pcell1 = self.cells[y1][x1]
 		pcell2 = self.cells[y2][x2]
@@ -70,22 +80,24 @@ class Bottle:
 		pcell2.empty()
 
 	def cell_at(self, col, row):
+		"""returns the cell at a given column and row"""
 		if row < 0 or row >= self.height:
 			return None
 		if col < 0 or col >= self.width:
 			return None
 		return self.cells[row][col]
-	
+
 	def virus_count(self):
+		"""return the number of unzapped viruses in the bottle"""
 		count = 0
-		for i,row in enumerate(self.cells):
-			for j,cell in enumerate(row):
+		for _,row in enumerate(self.cells):
+			for _,cell in enumerate(row):
 				if cell.is_virus() and not cell.is_zapped():
 					count += 1
 		return count
 
-	
 	def can_move_pill(self, pill, dx, dy, rotation=None):
+		"""return True if the pill can be rotated or moved in a given direction"""
 		copy = Pill(pill)
 		copy.move(dx, dy)
 		if rotation is not None:
@@ -96,12 +108,19 @@ class Bottle:
 		return cell1 and cell2 and cell1.is_empty() and cell2.is_empty()
 
 	def apply_gravity(self):
+		"""move any pill or half-pills down and return the number of affected cells"""
 		applied = 0
 		for y in range(self.height-1, 0, -1):
 			for x,cell in enumerate(self.cells[y]):
-				if not cell.is_pill(): continue
-				if cell.is_zapped(): continue
+				if not cell.is_pill():
+					continue
+				if cell.is_zapped():
+					continue
 				if cell.is_bound():
+					bound = None
+					below1 = None
+					below2 = None
+
 					if cell.is_bound_left():
 						bound  = self.cell_at(x-1, y)
 						below1 = self.cell_at(x   ,y+1)
@@ -130,13 +149,15 @@ class Bottle:
 		return applied
 
 	def zap_bound(self, x, y):
+		"""zap a bound cell at the given coordinates"""
 		cell = self.cell_at(x,y)
 		if cell.is_bound_left():
 			self.cell_at(x-1, y).unbind()
 		if cell.is_bound_right():
 			self.cell_at(x+1, y).unbind()
-	
+
 	def zap_aligned(self):
+		"""zap any cells that have the same color aligned horizontally or vertically"""
 		zap = 0
 		for y,row in enumerate(self.cells):
 			for x,cell in enumerate(row):
@@ -167,6 +188,7 @@ class Bottle:
 		return zap
 
 	def clear_zapped(self):
+		"""clear any zapped cells"""
 		for y,row in enumerate(self.cells):
 			for x,cell in enumerate(row):
 				if cell.is_zapped():
@@ -175,4 +197,3 @@ class Bottle:
 					if cell.is_bound_right():
 						self.cell_at(x+1, y).unbind()
 					cell.empty()
-
